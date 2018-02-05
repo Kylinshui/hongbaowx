@@ -25,10 +25,27 @@ public class HongBaoService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
         AccessibilityNodeInfo rootNodeInfo;//获取微信界面的根结点
-        AccessibilityNodeInfo mReceiveNode;
-        AccessibilityNodeInfo mUnpackNode;
+
         int eventType = accessibilityEvent.getEventType();
         switch (eventType){
+
+            case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
+                //监听通知消息,不在微信界面会最先触发这个通知
+                handleNotification(accessibilityEvent);
+
+                break;
+            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+                Log.i("bshui","TYPE_WINDOW_STATE_CHANGED");
+                break;
+            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
+                Log.i("bshui","TYPE_WINDOW_CONTENT_CHANGED");
+                break;
+
+            case AccessibilityEvent.TYPE_WINDOWS_CHANGED:
+                Log.i("bshui","TYPE_WINDOWS_CHANGED");
+                break;
+
+            /*
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
                 //界面点击
                 Log.i("bshui","通知栏信息变化");
@@ -49,6 +66,7 @@ public class HongBaoService extends AccessibilityService {
 
 
                 break;
+                */
         }
 
 
@@ -120,7 +138,8 @@ public class HongBaoService extends AccessibilityService {
     }
 
     /**
-     * 处理通知栏信息,如果微信红包提示,则摸拟点击
+     * 处理通知栏信息,如果微信红包提示,则触发通知消息的intent
+     * 进入当前的聊天界面
      * @param event
      */
     private void handleNotification(AccessibilityEvent event) {
@@ -128,13 +147,15 @@ public class HongBaoService extends AccessibilityService {
         if (!texts.isEmpty()) {
             for (CharSequence text : texts) {
                 String context = text.toString();
+                //[微信红包]恭喜发财，大吉大利
                 if (context.contains("微信红包")) {
+                    //打开通知栏状态
                     if (event.getParcelableData() != null && event.getParcelableData() instanceof Notification) {
                         Notification notification = (Notification) event.getParcelableData();
                         PendingIntent pendingIntent = notification.contentIntent;
                         try {
                             pendingIntent.send();
-                            Log.i("bshui","send....");
+
                         } catch (PendingIntent.CanceledException e) {
                             e.printStackTrace();
                         }
