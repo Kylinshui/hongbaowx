@@ -25,20 +25,31 @@ public class HongBaoService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
         AccessibilityNodeInfo rootNodeInfo;//获取微信界面的根结点
+        rootNodeInfo = accessibilityEvent.getSource();
 
         int eventType = accessibilityEvent.getEventType();
         switch (eventType){
-
+            //监听通知消息,不在微信界面会最先触发这个通知
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
-                //监听通知消息,不在微信界面会最先触发这个通知
                 handleNotification(accessibilityEvent);
+                break;
+            //监听是否进入微信红包消息界面
+            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+                String className = accessibilityEvent.getClassName().toString();
+                Log.i("bshui","className:"+className);
+                if(className.equals("com.tencent.mm.ui.LauncherUI")){
+
+                    //点击还没有拆过的红包,自已发的是查看红包,别人发的是领取红包
+                    if(rootNodeInfo == null)
+                        return;
+
+                    getPacket(rootNodeInfo);
+                }
 
                 break;
-            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                Log.i("bshui","TYPE_WINDOW_STATE_CHANGED");
-                break;
+                //在微信列表内但没有在微信界面,进入微信界面
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                Log.i("bshui","TYPE_WINDOW_CONTENT_CHANGED");
+              //  Log.i("bshui","TYPE_WINDOW_CONTENT_CHANGED");
                 break;
 
             case AccessibilityEvent.TYPE_WINDOWS_CHANGED:
@@ -77,32 +88,25 @@ public class HongBaoService extends AccessibilityService {
     }
 
     //模拟点击,打开抢红包界面
-    private void getPacket(){
-        AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+    private void getPacket(AccessibilityNodeInfo rootNodeInfo){
+        List<AccessibilityNodeInfo> nodes = rootNodeInfo.findAccessibilityNodeInfosByText("领取红包");
 
-      /* AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
-        if(nodeInfo !=null){
-            List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ada");
-            Log.i("bshui","-------name:"+list.get(0).getClassName().toString());
-            Log.i("bshui","-------name:"+list.get(1).getClassName().toString());
-          //  if(list.get(0).getClassName().toString().equals("android.widget.LinearLayout")){
-              //  list.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-           // }
+        if (!nodes.isEmpty()){
+            //判断nodes有几个,每个都要模拟点击,从最新的开始点
+            for(int i=nodes.size(); i>0; i--){
+                Log.i("bshui","nodes.size:"+nodes.size()+" name:"+nodes.get(i-1).getParent().getClassName().toString());
+                nodes.get(i-1).getParent().performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            }
 
-        }*/
 
-       // AccessibilityNodeInfo node = recycle(rootNode);
-        //Log.i("bshui","getPacket():click="+node.getParent().isClickable());
-        /* node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-        AccessibilityNodeInfo parent = node.getParent();
-        while(parent !=null){
-            if(parent.isClickable()){
-                parent.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                Log.i("bshui","parent...");
-                break;
+        }else{
+            Log.i("bshui","nodes is empty");
+            List<AccessibilityNodeInfo> mynodes = rootNodeInfo.findAccessibilityNodeInfosByText("查看红包");
+            if(!mynodes.isEmpty()) {
+                if (mynodes.size() > 0)
+                    mynodes.get(mynodes.size() - 1).getParent().performAction(AccessibilityNodeInfo.ACTION_CLICK);
             }
         }
-        */
     }
 
     public AccessibilityNodeInfo recycle(AccessibilityNodeInfo node){
