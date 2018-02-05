@@ -50,7 +50,10 @@ public class HongBaoService extends AccessibilityService {
                 }else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")){
                     //拆开红包后进入红包详情页返回聊天界面
 
-                    backPacket();
+                   // backPacket();
+                    //GLOBAL_ACTION_BACK
+                    //修改成返回Home界面才能接收到下一次的红包通知
+                    performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
                 }
 
                 break;
@@ -62,36 +65,7 @@ public class HongBaoService extends AccessibilityService {
             case AccessibilityEvent.TYPE_WINDOWS_CHANGED:
                 Log.i("bshui","TYPE_WINDOWS_CHANGED");
                 break;
-
-            /*
-            case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
-                //界面点击
-                Log.i("bshui","通知栏信息变化");
-                handleNotification(accessibilityEvent);
-                break;
-            case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                //界面文字改动
-                String className = accessibilityEvent.getClassName().toString();
-                Log.i("bshui","className:"+className);
-                if(className.equals("com.tencent.mm.ui.LauncherUI")){
-                    //如果在微信界面
-                    getPacket();
-                }else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI")){
-                    //开始打开红包
-                    openPacket();
-                }
-
-
-                break;
-                */
         }
-
-
-       rootNodeInfo = accessibilityEvent.getSource();
-        if(rootNodeInfo == null)
-            return;
-
     }
 
     //模拟点击,打开抢红包界面
