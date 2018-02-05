@@ -44,6 +44,12 @@ public class HongBaoService extends AccessibilityService {
                         return;
 
                     getPacket(rootNodeInfo);
+                }else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI")){
+                    //进入开红包界面,点击拆红包,根据id找节点
+                    openPacket();
+                }else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")){
+                    //拆开红包后
+
                 }
 
                 break;
@@ -109,26 +115,9 @@ public class HongBaoService extends AccessibilityService {
         }
     }
 
-    public AccessibilityNodeInfo recycle(AccessibilityNodeInfo node){
-        if(node.getChildCount()==0){
-            if(node.getText() != null){
-                if("查看红包".equals(node.getClassName().toString())){
-
-                    Log.i("bshui","get node-------");
-                    return node;
-                }
-            }
-        }else{
-            for(int i=0; i<node.getChildCount();i++){
-                if(node.getChild(i)!=null){
-                    recycle(node.getChild(i));
-                }
-            }
-        }
-        return node;
-
-    }
-
+    /**
+     * 拆红包
+     */
     private void openPacket(){
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         if(nodeInfo !=null){
@@ -139,6 +128,10 @@ public class HongBaoService extends AccessibilityService {
             }
 
         }
+    }
+    //从红包返回界面
+    private void backPacket(){
+
     }
 
     /**
