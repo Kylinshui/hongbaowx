@@ -48,8 +48,9 @@ public class HongBaoService extends AccessibilityService {
                     //进入开红包界面,点击拆红包,根据id找节点
                     openPacket();
                 }else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")){
-                    //拆开红包后
+                    //拆开红包后进入红包详情页返回聊天界面
 
+                    backPacket();
                 }
 
                 break;
@@ -131,7 +132,16 @@ public class HongBaoService extends AccessibilityService {
     }
     //从红包返回界面
     private void backPacket(){
+        AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+        if(nodeInfo !=null){
+            //找到返回的id
+            List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ho");
 
+            if(list.get(0).getClassName().toString().equals("android.widget.LinearLayout")){
+                list.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            }
+
+        }
     }
 
     /**
