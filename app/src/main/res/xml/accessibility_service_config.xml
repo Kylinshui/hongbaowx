@@ -6,4 +6,5 @@
     android:canRetrieveWindowContent="true"
     android:notificationTimeout="100"
     android:packageNames="com.tencent.mm"
+    android:description="@string/access_desc"
     android:settingsActivity="com.bshui.hongbaowx.ManActivity" />

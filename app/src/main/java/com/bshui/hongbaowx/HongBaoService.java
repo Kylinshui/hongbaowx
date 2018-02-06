@@ -18,6 +18,7 @@ public class HongBaoService extends AccessibilityService {
     protected void onServiceConnected() {
         super.onServiceConnected();
         Log.i("bshui","onServiceConnected");
+
     }
 
     @Override
@@ -47,6 +48,7 @@ public class HongBaoService extends AccessibilityService {
 
                 }else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI")){
                     //进入开红包界面,点击拆红包,根据id找节点
+
                     openPacket();
                 }else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")){
                     //拆开红包后进入红包详情页返回聊天界面
@@ -80,6 +82,7 @@ public class HongBaoService extends AccessibilityService {
                 mynodes.get(mynodes.size() - 1).getParent().performAction(AccessibilityNodeInfo.ACTION_CLICK);
             }else{
                 //防止纯文字导至插件失效
+
                 performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
             }
         }
