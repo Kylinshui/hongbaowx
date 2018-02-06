@@ -56,11 +56,7 @@ public class HongBaoService extends AccessibilityService {
                     //修改成返回GLOBAL_ACTION_HOME界面才能接收到下一次的红包通知
                     performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
                 }
-
                 break;
-
-
-
         }
     }
 
@@ -82,6 +78,9 @@ public class HongBaoService extends AccessibilityService {
             if (!mynodes.isEmpty()) {
              //   Log.i("bshui", "mySelf Red Packet");
                 mynodes.get(mynodes.size() - 1).getParent().performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            }else{
+                //防止纯文字导至插件失效
+                performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
             }
         }
     }
@@ -128,6 +127,7 @@ public class HongBaoService extends AccessibilityService {
                 String context = text.toString();
                 //[微信红包]恭喜发财，大吉大利
                 if (context.contains("微信红包")) {
+
                     //打开通知栏状态,进入相应的聊天窗口
                     if (event.getParcelableData() != null && event.getParcelableData() instanceof Notification) {
                         Notification notification = (Notification) event.getParcelableData();
