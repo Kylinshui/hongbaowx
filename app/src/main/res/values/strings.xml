@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">微信红包助手</string>
-    <string name="access_desc">要开启此项才能正常使用产品的完整功能</string>
+    <string name="access_desc">开启提示:\n\n
+        1.要开启此项才能正常使用产品的完整功能\n\n
+        2.请不要开启多个红包插件功能,会造成丢失\n\n
+        3.要监控的群不要屏掉消息的接收\n\n
+                </string>
 </resources>
