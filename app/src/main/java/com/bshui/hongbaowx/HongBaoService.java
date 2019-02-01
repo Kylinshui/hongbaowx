@@ -27,30 +27,34 @@ public class HongBaoService extends AccessibilityService {
         rootNodeInfo = accessibilityEvent.getSource();
 
         int eventType = accessibilityEvent.getEventType();
+      //  Log.i("bshui","eventType:=0x"+Integer.toHexString(eventType));
+
         switch (eventType){
-            //监听通知消息,不在微信界面会最先触发这个通知
+            //监听通知消息,不在微信界面会最先触发这个通知0x40
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
                 handleNotification(accessibilityEvent);
                 break;
 
-            //监听是否进入微信红包消息界面
+            //监听是否进入微信红包消息界面 0x20
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
                 String className = accessibilityEvent.getClassName().toString();
-
+             //   Log.i("bshui","className:"+className);
                 if(className.equals("com.tencent.mm.ui.LauncherUI")){
 
                     //点击还没有拆过的红包,自已发的是查看红包,别人发的是领取红包
-                    if(rootNodeInfo == null)
-                        return;
+                   // if(rootNodeInfo == null)
+                    //    return;
 
                     getPacket(rootNodeInfo);
 
 
-                }else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI")){
+                }else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyNotHookReceiveUI")){
                     //进入开红包界面,点击拆红包,根据id找节点
 
                     openPacket();
-                }else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")){
+                }
+
+                else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")){
                     //拆开红包后进入红包详情页返回聊天界面
 
                     backPacket();
@@ -67,24 +71,24 @@ public class HongBaoService extends AccessibilityService {
 
     //模拟点击,打开抢红包界面
     private void getPacket(AccessibilityNodeInfo rootNodeInfo) {
-        List<AccessibilityNodeInfo> nodes = rootNodeInfo.findAccessibilityNodeInfosByText("领取红包");
+        List<AccessibilityNodeInfo> nodes = rootNodeInfo.findAccessibilityNodeInfosByText("微信红包");
+        List<AccessibilityNodeInfo> nodes1 = rootNodeInfo.findAccessibilityNodeInfosByText("已领取");
+     //   Log.i("bshui","getPacket 红包数:"+nodes.size()+" 已领取:"+nodes1.size());
 
         if (!nodes.isEmpty()) {
             //判断nodes有几个,点击最新的一个
+            //当红包数大于已领取数时才点击
+            if(nodes.size()>nodes1.size()) {
 
-           // Log.i("bshui", "get Red Packet:" + nodes.size() );
-            nodes.get(nodes.size() - 1).getParent().performAction(AccessibilityNodeInfo.ACTION_CLICK);
-        } else {
-
-            List<AccessibilityNodeInfo> mynodes = rootNodeInfo.findAccessibilityNodeInfosByText("查看红包");
-            if (!mynodes.isEmpty()) {
-             //   Log.i("bshui", "mySelf Red Packet");
-                mynodes.get(mynodes.size() - 1).getParent().performAction(AccessibilityNodeInfo.ACTION_CLICK);
-            }else{
-                //防止纯文字导至插件失效
-
+                nodes.get(nodes.size() - 1).getParent().performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            }else if(nodes.size() == nodes1.size()){
+                //全部已被领取，返回
                 performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
             }
+        }else{
+           // Log.i("bshui","getPacket nodes empty");
+            //纯文字，假红包
+          //  performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
         }
     }
 
@@ -94,11 +98,11 @@ public class HongBaoService extends AccessibilityService {
     private void openPacket(){
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         if(nodeInfo !=null){
-            List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/c2i");
+          //  Log.i("bshui","OpenPacket");
+            List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/cv0");
 
             //if(list.get(0).getClassName().toString().equals("android.widget.Button")){
                 list.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
-           // }
 
         }
     }
@@ -107,8 +111,9 @@ public class HongBaoService extends AccessibilityService {
     private void backPacket(){
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         if(nodeInfo !=null){
-            //找到返回的id
-            List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/ho");
+            //找到返回的id android.widget.LinearLayout
+            List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/k4");
+
             if(list.size() > 0) {
                // if (list.get(0).getClassName().toString().equals("android.widget.LinearLayout")) {
                     list.get(0).performAction(AccessibilityNodeInfo.ACTION_CLICK);
@@ -129,8 +134,8 @@ public class HongBaoService extends AccessibilityService {
             for (CharSequence text : texts) {
                 String context = text.toString();
                 //[微信红包]恭喜发财，大吉大利
-                if (context.contains("微信红包")) {
-
+                if (context.contains("[微信红包]")) {
+                  //  Log.i("bshui","-------handeNotification");
                     //打开通知栏状态,进入相应的聊天窗口
                     if (event.getParcelableData() != null && event.getParcelableData() instanceof Notification) {
                         Notification notification = (Notification) event.getParcelableData();
