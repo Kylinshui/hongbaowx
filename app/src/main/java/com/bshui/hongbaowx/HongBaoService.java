@@ -27,7 +27,7 @@ public class HongBaoService extends AccessibilityService {
         rootNodeInfo = accessibilityEvent.getSource();
 
         int eventType = accessibilityEvent.getEventType();
-      //  Log.i("bshui","eventType:=0x"+Integer.toHexString(eventType));
+       // Log.i("bshui","eventType:=0x"+Integer.toHexString(eventType));
 
         switch (eventType){
             //监听通知消息,不在微信界面会最先触发这个通知0x40
@@ -38,23 +38,31 @@ public class HongBaoService extends AccessibilityService {
             //监听是否进入微信红包消息界面 0x20
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
                 String className = accessibilityEvent.getClassName().toString();
-             //   Log.i("bshui","className:"+className);
-                if(className.equals("com.tencent.mm.ui.LauncherUI")){
 
-                    //点击还没有拆过的红包,自已发的是查看红包,别人发的是领取红包
-                   // if(rootNodeInfo == null)
-                    //    return;
-
-                    getPacket(rootNodeInfo);
-
-
-                }else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyNotHookReceiveUI")){
+                if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyNotHookReceiveUI")){
                     //进入开红包界面,点击拆红包,根据id找节点
 
                     openPacket();
                 }
+                if(className.equals("com.tencent.mm.ui.base.p")){
+                    return;
+                }
+                if(className.equals("mm.plugin.luckymoney.ui.LuckyMoneyBeforeDetailUI")){
+                    return;
+                }
+              //  Log.i("bshui","className:"+className);
+                if(className.equals("com.tencent.mm.ui.LauncherUI")){
 
-                else if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")){
+                    //点击还没有拆过的红包,自已发的是查看红包,别人发的是领取红包
+                    if(rootNodeInfo == null) {
+                       // Log.i("bshui","rootNodeInfo is null");
+                        return;
+                    }
+
+                    getPacket(rootNodeInfo);
+
+                }
+                if(className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")){
                     //拆开红包后进入红包详情页返回聊天界面
 
                     backPacket();
@@ -62,6 +70,7 @@ public class HongBaoService extends AccessibilityService {
                     //修改成返回GLOBAL_ACTION_HOME界面才能接收到下一次的红包通知
                     performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
                 }
+
                 break;
         }
     }
@@ -72,8 +81,8 @@ public class HongBaoService extends AccessibilityService {
     //模拟点击,打开抢红包界面
     private void getPacket(AccessibilityNodeInfo rootNodeInfo) {
         List<AccessibilityNodeInfo> nodes = rootNodeInfo.findAccessibilityNodeInfosByText("微信红包");
-        List<AccessibilityNodeInfo> nodes1 = rootNodeInfo.findAccessibilityNodeInfosByText("已领取");
-     //   Log.i("bshui","getPacket 红包数:"+nodes.size()+" 已领取:"+nodes1.size());
+        List<AccessibilityNodeInfo> nodes1 = rootNodeInfo.findAccessibilityNodeInfosByText("已被领完");
+      //  Log.i("bshui","getPacket 红包数:"+nodes.size()+" 已领取:"+nodes1.size());
 
         if (!nodes.isEmpty()) {
             //判断nodes有几个,点击最新的一个
@@ -86,9 +95,9 @@ public class HongBaoService extends AccessibilityService {
                 performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
             }
         }else{
-           // Log.i("bshui","getPacket nodes empty");
+          //  Log.i("bshui","getPacket nodes empty");
             //纯文字，假红包
-          //  performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
+            performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME);
         }
     }
 
@@ -98,7 +107,7 @@ public class HongBaoService extends AccessibilityService {
     private void openPacket(){
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         if(nodeInfo !=null){
-          //  Log.i("bshui","OpenPacket");
+         //   Log.i("bshui","OpenPacket");
             List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId("com.tencent.mm:id/cv0");
 
             //if(list.get(0).getClassName().toString().equals("android.widget.Button")){
